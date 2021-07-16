@@ -4,8 +4,7 @@ import org.springframework.core.env.PropertySource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,15 +21,40 @@ public class MacosPropertySource extends PropertySource<MacosItem> {
 
     public MacosPropertySource(String name, MacosItem macosItem) throws IOException {
         super(name, macosItem);
-        Files.lines(Paths.get(macosItem.getPath()), StandardCharsets.UTF_8).forEach(line -> {
-            System.out.println(macosItem.getPath() + " " + line);
-            String[] split = line.split("=");
-            properties.put(split[0], split[1]);
-        });
+        Path filePath = Paths.get(macosItem.getPath());
+        read(filePath);
+
+        new Thread(() -> {
+            try{
+                WatchService watchService
+                        = FileSystems.getDefault().newWatchService();
+
+                macosItem.getDirPath().register(
+                        watchService,
+                        StandardWatchEventKinds.ENTRY_MODIFY);
+
+                WatchKey key;
+                while ((key = watchService.take()) != null) {
+                    for (WatchEvent<?> event : key.pollEvents()) {
+                        read(filePath);
+                    }
+                    key.reset();
+                }
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }).start();
     }
 
     @Override
     public Object getProperty(String s) {
         return properties.get(s);
+    }
+
+    private void read(Path path) throws IOException {
+        Files.lines(path, StandardCharsets.UTF_8).forEach(line -> {
+            String[] split = line.split("=");
+            properties.put(split[0], split[1]);
+        });
     }
 }

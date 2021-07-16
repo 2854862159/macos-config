@@ -7,6 +7,7 @@ import org.springframework.core.env.PropertySource;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -28,10 +29,11 @@ public class MacosPropertySourceLocator implements PropertySourceLocator {
             MacosItem macosItem = new MacosItem();
             macosItem.setPath(BASE_PATH + "/" + profile + "/macos.properties");
             macosItem.setFile(new File(BASE_PATH + "/macos.properties"));
+            macosItem.setDirPath(Paths.get(BASE_PATH + "/" + profile));
             try {
                 MacosPropertySource macosPropertySource = new MacosPropertySource(BASE_PATH + "#" + profile, macosItem);
                 composite.addPropertySource(macosPropertySource);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });

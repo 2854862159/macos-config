@@ -1,6 +1,7 @@
 package com.example.macosconfig.config;
 
 import java.io.File;
+import java.nio.file.Path;
 
 /**
  * ClassName: MacosItem <br/>
@@ -14,6 +15,8 @@ public class MacosItem {
     private String path;
 
     private File file;
+
+    private Path dirPath;
 
     public String getPath() {
         return path;
@@ -29,5 +32,13 @@ public class MacosItem {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public Path getDirPath() {
+        return dirPath;
+    }
+
+    public void setDirPath(Path dirPath) {
+        this.dirPath = dirPath;
     }
 }
